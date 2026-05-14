@@ -1,0 +1,19 @@
+# Node.js
+node_modules/
+.next/
+
+# Python
+__pycache__/
+venv/
+*.pyc
+
+# Dataset (Too large for git)
+archive/
+
+# Env vars
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
