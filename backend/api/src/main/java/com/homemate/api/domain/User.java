@@ -28,6 +28,14 @@ public class User {
 
     private String profilePictureUrl;
 
+    // Yetki yönetimi için
+    @Column(nullable = false)
+    private String role = "ROLE_USER";
+
+    // Soft delete için
+    @Column(nullable = false)
+    private boolean isActive = true;
+
     // Yapay Zekanın atadığı kişilik tipi (K-Means küme numarası: 0-9)
     private Integer personaId;
 

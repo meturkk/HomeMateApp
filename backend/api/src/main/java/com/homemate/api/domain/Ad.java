@@ -45,4 +45,8 @@ public class Ad {
 
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    // Soft delete için
+    @Column(nullable = false)
+    private boolean isActive = true;
 }

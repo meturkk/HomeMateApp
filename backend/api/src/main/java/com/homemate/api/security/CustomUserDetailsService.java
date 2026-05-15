@@ -5,8 +5,9 @@ import com.homemate.api.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
+import java.util.Collections;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -22,11 +23,14 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Kullanıcı bulunamadı: " + email));
 
-        // Spring Security'nin beklediği User sınıfını dönüyoruz.
+        if (!user.isActive()) {
+            throw new RuntimeException("Bu hesap askıya alınmıştır.");
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                new ArrayList<>() // Yetkiler (Roles) şu an boş, herkes normal kullanıcı.
+                Collections.singletonList(new SimpleGrantedAuthority(user.getRole()))
         );
     }
 }
