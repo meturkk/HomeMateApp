@@ -11,6 +11,11 @@ import com.homemate.api.repository.DistrictRepository;
 import com.homemate.api.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +45,9 @@ public class AdService {
         return mapToDto(ad);
     }
 
-    public AdDto createAd(AdDto adDto, String ownerEmail) {
+    private final String UPLOAD_DIR = "uploads/";
+
+    public AdDto createAd(AdDto adDto, List<MultipartFile> files, String ownerEmail) {
         User owner = userRepository.findByEmail(ownerEmail)
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));
         City city = cityRepository.findById(adDto.getCityId())
@@ -55,7 +62,29 @@ public class AdService {
         ad.setPrice(adDto.getPrice());
         ad.setCity(city);
         ad.setDistrict(district);
-        ad.setPhotoUrls(adDto.getPhotoUrls());
+        ad.setNeighborhood(adDto.getNeighborhood());
+
+        // Handle File Uploads
+        List<String> photoUrls = new java.util.ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            try {
+                Path uploadPath = Paths.get(UPLOAD_DIR);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+                for (MultipartFile f : files) {
+                    if (f != null && !f.isEmpty()) {
+                        String fileName = UUID.randomUUID().toString() + "_" + f.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
+                        Path filePath = uploadPath.resolve(fileName);
+                        Files.copy(f.getInputStream(), filePath);
+                        photoUrls.add("http://localhost:8080/uploads/" + fileName);
+                    }
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Dosya yüklenirken hata oluştu: " + e.getMessage());
+            }
+        }
+        ad.setPhotoUrls(photoUrls);
         ad.setCreatedAt(LocalDateTime.now());
 
         Ad savedAd = adRepository.save(ad);
@@ -73,6 +102,7 @@ public class AdService {
         dto.setCityName(ad.getCity().getName());
         dto.setDistrictId(ad.getDistrict().getId());
         dto.setDistrictName(ad.getDistrict().getName());
+        dto.setNeighborhood(ad.getNeighborhood());
         dto.setPhotoUrls(ad.getPhotoUrls());
         dto.setCreatedAt(ad.getCreatedAt());
         return dto;

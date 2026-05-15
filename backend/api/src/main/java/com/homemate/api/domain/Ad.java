@@ -38,6 +38,9 @@ public class Ad {
     @JoinColumn(name = "district_id", nullable = false)
     private District district;
 
+    @Column
+    private String neighborhood;
+
     @ElementCollection
     @CollectionTable(name = "ad_photos", joinColumns = @JoinColumn(name = "ad_id"))
     @Column(name = "photo_url")

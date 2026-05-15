@@ -15,6 +15,7 @@ public class AdDto {
     private String cityName;
     private Long districtId;
     private String districtName;
+    private String neighborhood;
     private List<String> photoUrls;
     private LocalDateTime createdAt;
 }

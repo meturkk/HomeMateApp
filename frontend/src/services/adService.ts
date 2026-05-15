@@ -15,4 +15,12 @@ export const adService = {
       requireAuth: false,
     });
   },
+
+  createAd: async (formData: FormData): Promise<AdDto> => {
+    return apiClient<AdDto>('/ads', {
+      method: 'POST',
+      body: formData,
+      requireAuth: true,
+    });
+  },
 };

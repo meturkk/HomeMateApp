@@ -28,9 +28,18 @@ public class AdController {
         return ResponseEntity.ok(adService.getAdById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<AdDto> createAd(@RequestBody AdDto adDto, Authentication authentication) {
-        return ResponseEntity.ok(adService.createAd(adDto, authentication.getName()));
+    @PostMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<AdDto> createAd(
+            @RequestPart("ad") String adJson,
+            @RequestPart(value = "files", required = false) java.util.List<org.springframework.web.multipart.MultipartFile> files,
+            Authentication authentication) {
+        try {
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            AdDto adDto = mapper.readValue(adJson, AdDto.class);
+            return ResponseEntity.ok(adService.createAd(adDto, files, authentication.getName()));
+        } catch (Exception e) {
+            throw new RuntimeException("Geçersiz ilan verisi: " + e.getMessage());
+        }
     }
 
     // --- ADMIN ENDPOINT'LERİ ---

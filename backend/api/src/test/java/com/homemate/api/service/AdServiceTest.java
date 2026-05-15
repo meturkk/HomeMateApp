@@ -77,7 +77,7 @@ class AdServiceTest {
         when(adRepository.save(any(Ad.class))).thenReturn(savedAd);
 
         // Act
-        AdDto result = adService.createAd(adDto, ownerEmail);
+        AdDto result = adService.createAd(adDto, null, ownerEmail);
 
         // Assert
         assertNotNull(result);

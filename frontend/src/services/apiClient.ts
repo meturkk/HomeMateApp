@@ -13,10 +13,20 @@ export const apiClient = async <T>(
   const config: RequestInit = {
     ...customConfig,
     headers: {
-      'Content-Type': 'application/json',
       ...headers,
     },
   };
+
+  if (customConfig.body) {
+    if (customConfig.body instanceof FormData) {
+      // FormData için Content-Type'ı tarayıcı otomatik belirler (boundary ile birlikte)
+    } else {
+      (config.headers as Record<string, string>)['Content-Type'] = 'application/json';
+      if (typeof customConfig.body !== 'string') {
+        config.body = JSON.stringify(customConfig.body);
+      }
+    }
+  }
 
   if (requireAuth) {
     if (typeof window !== 'undefined') {
@@ -35,10 +45,15 @@ export const apiClient = async <T>(
   if (!response.ok) {
     let errorMessage = 'Bir hata oluştu';
     try {
-      const errorData = await response.json();
-      errorMessage = errorData.message || errorData.error || errorMessage;
+      const errorText = await response.text();
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage = errorData.message || errorData.error || errorMessage;
+      } catch {
+        errorMessage = errorText;
+      }
     } catch {
-      errorMessage = await response.text();
+      // Ignored
     }
     throw new Error(errorMessage || 'API isteği başarısız oldu');
   }

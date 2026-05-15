@@ -10,6 +10,7 @@ import Link from 'next/link';
 export default function AdDetailPage() {
   const params = useParams();
   const [ad, setAd] = useState<AdDto | null>(null);
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -56,19 +57,36 @@ export default function AdDetailPage() {
         {/* Sol Sütun: Fotoğraf ve Detaylar */}
         <div className="lg:col-span-2 flex flex-col gap-lg">
           {/* Fotoğraf Alanı */}
-          <div className="w-full h-[400px] md:h-[500px] bg-surface-container rounded-2xl overflow-hidden relative border border-outline-variant/30 flex items-center justify-center">
-            {ad.photoUrls && ad.photoUrls.length > 0 ? (
-              <img src={ad.photoUrls[0]} alt={ad.title} className="w-full h-full object-cover" />
-            ) : (
-              <div className="flex flex-col items-center text-outline">
-                <span className="material-symbols-outlined text-[80px] mb-sm">image</span>
-                <span className="font-label-md">Fotoğraf Yok</span>
+          <div className="flex flex-col gap-sm">
+            <div className="w-full h-[400px] md:h-[500px] bg-surface-container rounded-2xl overflow-hidden relative border border-outline-variant/30 flex items-center justify-center">
+              {ad.photoUrls && ad.photoUrls.length > 0 ? (
+                <img src={ad.photoUrls[selectedPhotoIndex]} alt={ad.title} className="w-full h-full object-cover transition-opacity duration-300" />
+              ) : (
+                <div className="flex flex-col items-center text-outline">
+                  <span className="material-symbols-outlined text-[80px] mb-sm">image</span>
+                  <span className="font-label-md">Fotoğraf Yok</span>
+                </div>
+              )}
+              <div className="absolute top-md left-md bg-secondary-container text-on-secondary-container font-label-md px-4 py-2 rounded-full shadow-sm backdrop-blur-sm bg-opacity-90 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px]">verified</span>
+                Yüksek Uyumlu
+              </div>
+            </div>
+
+            {/* Küçük Fotoğraflar (Thumbnails) */}
+            {ad.photoUrls && ad.photoUrls.length > 1 && (
+              <div className="flex gap-sm overflow-x-auto pb-2 custom-scrollbar">
+                {ad.photoUrls.map((url, index) => (
+                  <button 
+                    key={index} 
+                    onClick={() => setSelectedPhotoIndex(index)}
+                    className={`w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${selectedPhotoIndex === index ? 'border-primary opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                  >
+                    <img src={url} alt={`${ad.title} - Fotoğraf ${index + 1}`} className="w-full h-full object-cover" />
+                  </button>
+                ))}
               </div>
             )}
-            <div className="absolute top-md left-md bg-secondary-container text-on-secondary-container font-label-md px-4 py-2 rounded-full shadow-sm backdrop-blur-sm bg-opacity-90 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[20px]">verified</span>
-              Yüksek Uyumlu
-            </div>
           </div>
 
           {/* Açıklama */}

@@ -1,6 +1,17 @@
+"use client";
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export default function Header() {
+  const pathname = usePathname();
+
+  const isActive = (path: string) => {
+    return pathname === path 
+      ? "text-primary font-bold border-b-2 border-primary pb-1 font-label-md text-label-md transition-colors duration-200" 
+      : "text-on-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-colors duration-200";
+  };
+
   return (
     <header className="bg-surface sticky top-0 z-50 border-b border-outline-variant shadow-sm w-full">
       <div className="flex justify-between items-center px-gutter py-4 w-full max-w-container-max mx-auto">
@@ -11,13 +22,13 @@ export default function Header() {
 
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-md">
-          <Link href="/" className="text-primary font-bold border-b-2 border-primary pb-1 font-label-md text-label-md hover:text-primary transition-colors duration-200">
+          <Link href="/" className={isActive("/")}>
             Ev Arkadaşı Bul
           </Link>
-          <Link href="/ads/new" className="text-on-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-colors duration-200">
+          <Link href="/ads/create" className={isActive("/ads/create")}>
             İlan Ver
           </Link>
-          <Link href="/test" className="text-on-surface-variant font-medium font-label-md text-label-md hover:text-primary transition-colors duration-200">
+          <Link href="/test" className={isActive("/test")}>
             Kişilik Testi
           </Link>
         </nav>
