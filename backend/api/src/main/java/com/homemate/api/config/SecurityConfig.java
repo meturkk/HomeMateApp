@@ -42,6 +42,7 @@ public class SecurityConfig {
             }))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Kayıt/Giriş uçları herkese açık
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/ads").permitAll() // İlanları herkes görebilir
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users").hasRole("ADMIN")
                 .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/users/*/deactivate").hasRole("ADMIN")
                 .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/ads/*/deactivate").hasRole("ADMIN")
