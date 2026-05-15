@@ -15,13 +15,15 @@ export interface UserDto {
 
 export interface AdDto {
   id: number;
-  userId: number;
+  ownerId: number;
   title: string;
   description: string;
   price: number;
-  location: string;
-  houseType: string;
-  roomCount: string;
+  cityId: number;
+  cityName: string;
+  districtId: number;
+  districtName: string;
+  photoUrls: string[];
   isActive: boolean;
   createdAt: string;
 }

@@ -8,4 +8,11 @@ export const adService = {
       requireAuth: false, // Anasayfada herkes görebilir
     });
   },
+
+  getAdById: async (id: number | string): Promise<AdDto> => {
+    return apiClient<AdDto>(`/ads/${id}`, {
+      method: 'GET',
+      requireAuth: false,
+    });
+  },
 };

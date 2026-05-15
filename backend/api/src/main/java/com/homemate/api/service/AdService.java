@@ -35,6 +35,11 @@ public class AdService {
         return adRepository.findAll().stream().map(this::mapToDto).collect(Collectors.toList());
     }
 
+    public AdDto getAdById(Long id) {
+        Ad ad = adRepository.findById(id).orElseThrow(() -> new RuntimeException("İlan bulunamadı"));
+        return mapToDto(ad);
+    }
+
     public AdDto createAd(AdDto adDto, String ownerEmail) {
         User owner = userRepository.findByEmail(ownerEmail)
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));

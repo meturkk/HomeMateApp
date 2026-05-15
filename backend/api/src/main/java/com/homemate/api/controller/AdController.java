@@ -23,6 +23,11 @@ public class AdController {
         return ResponseEntity.ok(adService.getAllAds());
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AdDto> getAdById(@PathVariable Long id) {
+        return ResponseEntity.ok(adService.getAdById(id));
+    }
+
     @PostMapping
     public ResponseEntity<AdDto> createAd(@RequestBody AdDto adDto, Authentication authentication) {
         return ResponseEntity.ok(adService.createAd(adDto, authentication.getName()));

@@ -142,8 +142,8 @@ export default function HomePage() {
                         <h2 className="font-headline-md text-headline-md text-on-surface">
                           {ad.price} TL <span className="font-body-md text-body-md text-on-surface-variant">/ ay</span>
                         </h2>
-                        <span className="bg-surface-container px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[14px]">meeting_room</span> {ad.houseType || 'Oda'}
+                          <span className="bg-surface-container px-2 py-1 rounded font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[14px]">meeting_room</span> Oda
                         </span>
                       </div>
                       
@@ -158,9 +158,9 @@ export default function HomePage() {
                           K
                         </div>
                         <div>
-                          <p className="font-label-md text-label-md text-on-surface">Kullanıcı {ad.userId}</p>
+                          <p className="font-label-md text-label-md text-on-surface">Kullanıcı {ad.ownerId}</p>
                           <p className="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-1">
-                            <span className="material-symbols-outlined text-[14px]">location_on</span> {ad.location || 'Bilinmiyor'}
+                            <span className="material-symbols-outlined text-[14px]">location_on</span> {ad.cityName || 'Bilinmiyor'}, {ad.districtName || ''}
                           </p>
                         </div>
                       </div>
