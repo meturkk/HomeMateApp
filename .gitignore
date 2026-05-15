@@ -17,3 +17,12 @@ archive/
 # IDE
 .idea/
 .vscode/
+
+# Build Outputs (Java/General)
+target/
+build/
+out/
+
+# OS generated files
+.DS_Store
+Thumbs.db
