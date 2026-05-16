@@ -183,7 +183,16 @@ export default function AdDetailPage() {
               {isFavorited ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
             </button>
 
-            <button className="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:opacity-90 transition-opacity mt-sm shadow-sm flex items-center justify-center gap-2">
+            <button 
+              onClick={() => {
+                if (!authService.isAuthenticated()) {
+                  router.push('/login');
+                  return;
+                }
+                router.push(`/messages?to=${ad.ownerId}`);
+              }}
+              className="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:opacity-90 transition-opacity mt-sm shadow-sm flex items-center justify-center gap-2"
+            >
               <span className="material-symbols-outlined">chat</span>
               İletişime Geç
             </button>

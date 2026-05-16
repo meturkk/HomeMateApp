@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { authService } from '@/services/authService';
+import { messageService } from '@/services/messageService';
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -22,6 +24,31 @@ export default function Header() {
       setUser(null);
     }
   }, [pathname]);
+
+  // Okunmamış mesaj sayısını yükle
+  useEffect(() => {
+    if (isMounted && user) {
+      const loadUnread = async () => {
+        try {
+          const count = await messageService.getUnreadCount();
+          setUnreadCount(count);
+        } catch {
+          // silently ignore
+        }
+      };
+      loadUnread();
+      const interval = setInterval(loadUnread, 30000);
+
+      // Mesaj okunduğunda anında güncelle
+      const handleMessagesRead = () => loadUnread();
+      window.addEventListener('messagesRead', handleMessagesRead);
+
+      return () => {
+        clearInterval(interval);
+        window.removeEventListener('messagesRead', handleMessagesRead);
+      };
+    }
+  }, [isMounted, user]);
 
   const handleLogout = () => {
     authService.logout();
@@ -62,6 +89,16 @@ export default function Header() {
             <div className="w-20 h-10 animate-pulse bg-surface-container rounded-lg"></div>
           ) : user ? (
             <div className="flex items-center gap-md">
+              {/* Mesaj İkonu */}
+              <Link href="/messages" className="relative p-2 rounded-full hover:bg-surface-container-high transition-colors">
+                <span className="material-symbols-outlined text-[22px] text-on-surface-variant">chat_bubble</span>
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-error text-on-error rounded-full flex items-center justify-center text-[11px] font-bold">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </Link>
+              
               <Link href="/profile" className="flex items-center gap-xs bg-surface-container rounded-full pl-1 pr-3 py-1 border border-outline-variant/30 hover:bg-surface-container-high transition-colors cursor-pointer">
                 <div className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md uppercase overflow-hidden">
                   {user.profilePictureUrl ? (

@@ -32,3 +32,24 @@ export interface AdDto {
   isActive: boolean;
   createdAt: string;
 }
+
+export interface MessageDto {
+  id: number;
+  senderId: number;
+  senderName: string;
+  senderProfilePicture?: string;
+  receiverId: number;
+  receiverName: string;
+  content: string;
+  timestamp: string;
+  isRead: boolean;
+}
+
+export interface ConversationDto {
+  otherUserId: number;
+  otherUserName: string;
+  otherUserProfilePicture?: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadCount: number;
+}
