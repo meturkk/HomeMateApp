@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { adService } from '@/services/adService';
+import { favoriteService } from '@/services/favoriteService';
+import { authService } from '@/services/authService';
 import { AdDto } from '@/types';
 import Link from 'next/link';
 import Dropdown from '@/components/ui/Dropdown';
+import { useRouter } from 'next/navigation';
 
 import { LOCATION_DATA } from '@/constants/locations';
 
 export default function HomePage() {
+  const router = useRouter();
   const [ads, setAds] = useState<AdDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [favoriteIds, setFavoriteIds] = useState<Set<number>>(new Set());
   
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
@@ -48,6 +53,46 @@ export default function HomePage() {
     };
     fetchAds();
   }, []);
+
+  // Favori ID'lerini yükle
+  useEffect(() => {
+    const loadFavorites = async () => {
+      if (authService.isAuthenticated()) {
+        try {
+          const ids = await favoriteService.getFavoriteIds();
+          setFavoriteIds(new Set(ids));
+        } catch (e) {
+          console.error('Favoriler yüklenemedi:', e);
+        }
+      }
+    };
+    loadFavorites();
+  }, []);
+
+  const handleToggleFavorite = async (e: React.MouseEvent, adId: number) => {
+    e.preventDefault(); // Link navigasyonunu engelle
+    e.stopPropagation();
+    
+    if (!authService.isAuthenticated()) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const result = await favoriteService.toggle(adId);
+      setFavoriteIds(prev => {
+        const next = new Set(prev);
+        if (result.favorited) {
+          next.add(adId);
+        } else {
+          next.delete(adId);
+        }
+        return next;
+      });
+    } catch (error) {
+      console.error('Favori işlemi başarısız:', error);
+    }
+  };
 
   return (
     <div className="flex-grow w-full max-w-container-max mx-auto px-gutter py-lg">
@@ -132,8 +177,15 @@ export default function HomePage() {
                         %{matchScore} Uyumlu
                       </div>
                       
-                      <button className="absolute top-sm right-sm p-2 bg-surface-container-lowest/80 rounded-full hover:bg-white text-outline hover:text-error transition-colors">
-                        <span className="material-symbols-outlined">favorite</span>
+                      <button 
+                        onClick={(e) => handleToggleFavorite(e, ad.id)}
+                        className={`absolute top-sm right-sm w-10 h-10 flex items-center justify-center rounded-full bg-surface-container-lowest/80 hover:bg-white transition-colors ${
+                          favoriteIds.has(ad.id) ? 'text-amber-500' : 'text-outline hover:text-amber-500'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[22px]" style={favoriteIds.has(ad.id) ? { fontVariationSettings: "'FILL' 1" } : {}}>
+                          {favoriteIds.has(ad.id) ? 'star' : 'star_border'}
+                        </span>
                       </button>
                     </div>
                     

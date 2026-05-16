@@ -2,17 +2,21 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { adService } from '@/services/adService';
+import { favoriteService } from '@/services/favoriteService';
+import { authService } from '@/services/authService';
 import { AdDto } from '@/types';
 import Link from 'next/link';
 
 export default function AdDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const [ad, setAd] = useState<AdDto | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
     const fetchAd = async () => {
@@ -31,6 +35,35 @@ export default function AdDetailPage() {
 
     fetchAd();
   }, [params.id]);
+
+  // Favori durumunu kontrol et
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (authService.isAuthenticated() && ad) {
+        try {
+          const ids = await favoriteService.getFavoriteIds();
+          setIsFavorited(ids.includes(ad.id));
+        } catch (e) {
+          // silently fail
+        }
+      }
+    };
+    checkFavorite();
+  }, [ad]);
+
+  const handleToggleFavorite = async () => {
+    if (!authService.isAuthenticated()) {
+      router.push('/login');
+      return;
+    }
+    if (!ad) return;
+    try {
+      const result = await favoriteService.toggle(ad.id);
+      setIsFavorited(result.favorited);
+    } catch (error) {
+      console.error('Favori işlemi başarısız:', error);
+    }
+  };
 
   if (isLoading) {
     return <div className="flex-grow flex items-center justify-center p-xl font-body-lg text-on-surface-variant">İlan detayları yükleniyor...</div>;
@@ -135,6 +168,20 @@ export default function AdDetailPage() {
                 <p className="font-body-sm text-body-sm text-on-surface-variant">Ev Sahibi</p>
               </div>
             </div>
+
+            <button 
+              onClick={handleToggleFavorite}
+              className={`w-full font-label-md text-label-md py-md rounded-xl transition-all mt-sm flex items-center justify-center gap-2 border ${
+                isFavorited 
+                  ? 'bg-amber-500/10 text-amber-600 border-amber-500/30 hover:bg-amber-500/20' 
+                  : 'bg-surface-container text-on-surface border-outline-variant/30 hover:border-amber-500 hover:text-amber-600'
+              }`}
+            >
+              <span className="material-symbols-outlined" style={isFavorited ? { fontVariationSettings: "'FILL' 1" } : {}}>
+                {isFavorited ? 'star' : 'star_border'}
+              </span>
+              {isFavorited ? 'Favorilerden Çıkar' : 'Favorilere Ekle'}
+            </button>
 
             <button className="w-full bg-primary text-on-primary font-label-md text-label-md py-md rounded-xl hover:opacity-90 transition-opacity mt-sm shadow-sm flex items-center justify-center gap-2">
               <span className="material-symbols-outlined">chat</span>

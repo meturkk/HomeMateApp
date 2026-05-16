@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { userService } from '@/services/userService';
 import { adService } from '@/services/adService';
+import { favoriteService } from '@/services/favoriteService';
 import { authService } from '@/services/authService';
 import { UserDto, AdDto } from '@/types';
 import Cropper from 'react-easy-crop';
@@ -14,8 +15,10 @@ export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<UserDto | null>(null);
   const [ads, setAds] = useState<AdDto[]>([]);
+  const [favoriteAds, setFavoriteAds] = useState<AdDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'myAds' | 'favorites'>('myAds');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Kırpma state'leri
@@ -79,12 +82,14 @@ export default function ProfilePage() {
 
     const fetchData = async () => {
       try {
-        const [userData, adsData] = await Promise.all([
+        const [userData, adsData, favData] = await Promise.all([
           userService.getMe(),
-          adService.getMyAds()
+          adService.getMyAds(),
+          favoriteService.getFavoriteAds()
         ]);
         setUser(userData);
         setAds(adsData);
+        setFavoriteAds(favData);
       } catch (error) {
         console.error("Profil bilgileri alınamadı", error);
       } finally {
@@ -184,56 +189,84 @@ export default function ProfilePage() {
         <div className="md:col-span-2">
           <div className="bg-surface-container-lowest p-lg rounded-2xl border border-outline-variant/30 ambient-shadow min-h-[400px] flex flex-col">
             <div className="flex justify-between items-center mb-md border-b border-outline-variant/30 pb-sm">
-              <h3 className="font-headline-sm text-on-surface flex items-center gap-2">
-                <span className="material-symbols-outlined text-primary">format_list_bulleted</span>
-                Verdiğim İlanlar
-              </h3>
+              <div className="flex gap-md">
+                <button 
+                  onClick={() => setActiveTab('myAds')}
+                  className={`font-headline-sm flex items-center gap-2 pb-2 border-b-2 transition-colors ${
+                    activeTab === 'myAds' ? 'text-primary border-primary' : 'text-on-surface-variant border-transparent hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px]">format_list_bulleted</span>
+                  Verdiğim İlanlar
+                </button>
+                <button 
+                  onClick={() => setActiveTab('favorites')}
+                  className={`font-headline-sm flex items-center gap-2 pb-2 border-b-2 transition-colors ${
+                    activeTab === 'favorites' ? 'text-amber-600 border-amber-500' : 'text-on-surface-variant border-transparent hover:text-on-surface'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[20px]">star</span>
+                  Favorilerim
+                </button>
+              </div>
               <span className="font-label-sm bg-primary-container text-on-primary-container px-3 py-1 rounded-full">
-                {ads.length} İlan
+                {activeTab === 'myAds' ? ads.length : favoriteAds.length} İlan
               </span>
             </div>
 
-            {ads.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-md flex-grow content-start">
-                {ads.map((ad) => (
-                  <Link href={`/ads/${ad.id}`} key={ad.id} className="block group">
-                    <div className="bg-surface rounded-xl overflow-hidden border border-outline-variant/30 hover:border-primary/50 hover:shadow-md transition-all flex flex-col h-full">
-                      <div className="h-40 bg-surface-container relative">
-                        {ad.photoUrls && ad.photoUrls.length > 0 ? (
-                          <img src={ad.photoUrls[0]} alt={ad.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-outline">
-                            <span className="material-symbols-outlined text-[40px]">image</span>
+            {/* İlanlarım veya Favorilerim listesi */}
+            {(() => {
+              const currentList = activeTab === 'myAds' ? ads : favoriteAds;
+              const emptyIcon = activeTab === 'myAds' ? 'inventory_2' : 'star_border';
+              const emptyText = activeTab === 'myAds' ? 'Henüz hiç ilan vermemişsiniz.' : 'Henüz hiç ilan favorilere eklenmemiş.';
+              const emptyAction = activeTab === 'myAds' 
+                ? { href: '/ads/create', label: 'İlk İlanını Ver' } 
+                : { href: '/', label: 'İlanları Keşfet' };
+
+              return currentList.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-md flex-grow content-start">
+                  {currentList.map((ad) => (
+                    <Link href={`/ads/${ad.id}`} key={ad.id} className="block group">
+                      <div className="bg-surface rounded-xl overflow-hidden border border-outline-variant/30 hover:border-primary/50 hover:shadow-md transition-all flex flex-col h-full">
+                        <div className="h-40 bg-surface-container relative">
+                          {ad.photoUrls && ad.photoUrls.length > 0 ? (
+                            <img src={ad.photoUrls[0]} alt={ad.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-outline">
+                              <span className="material-symbols-outlined text-[40px]">image</span>
+                            </div>
+                          )}
+                          <div className="absolute top-2 right-2 bg-surface/90 text-primary font-label-sm px-2 py-1 rounded-md backdrop-blur-sm">
+                            {ad.price} TL
                           </div>
-                        )}
-                        <div className="absolute top-2 right-2 bg-surface/90 text-primary font-label-sm px-2 py-1 rounded-md backdrop-blur-sm">
-                          {ad.price} TL
+                        </div>
+                        <div className="p-sm flex flex-col flex-grow">
+                          <h4 className="font-label-lg text-on-surface line-clamp-1 mb-1">{ad.title}</h4>
+                          <p className="font-body-sm text-on-surface-variant flex items-center gap-1 mb-2">
+                            <span className="material-symbols-outlined text-[14px]">location_on</span>
+                            {ad.cityName}, {ad.districtName}
+                          </p>
+                          <div className="mt-auto pt-2 border-t border-outline-variant/30 flex justify-between items-center">
+                            <span className="font-label-sm text-on-surface-variant">
+                              {activeTab === 'myAds' ? 'Yayında' : 'Favori'}
+                            </span>
+                            <span className="material-symbols-outlined text-primary text-[18px]">arrow_forward</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="p-sm flex flex-col flex-grow">
-                        <h4 className="font-label-lg text-on-surface line-clamp-1 mb-1">{ad.title}</h4>
-                        <p className="font-body-sm text-on-surface-variant flex items-center gap-1 mb-2">
-                          <span className="material-symbols-outlined text-[14px]">location_on</span>
-                          {ad.cityName}, {ad.districtName}
-                        </p>
-                        <div className="mt-auto pt-2 border-t border-outline-variant/30 flex justify-between items-center">
-                          <span className="font-label-sm text-on-surface-variant">Yayında</span>
-                          <span className="material-symbols-outlined text-primary text-[18px]">arrow_forward</span>
-                        </div>
-                      </div>
-                    </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center flex-grow py-xl text-outline">
+                  <span className="material-symbols-outlined text-[60px] mb-sm">{emptyIcon}</span>
+                  <p className="font-body-lg text-on-surface-variant text-center mb-md">{emptyText}</p>
+                  <Link href={emptyAction.href} className="font-label-md bg-primary text-on-primary px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">
+                    {emptyAction.label}
                   </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col items-center justify-center flex-grow py-xl text-outline">
-                <span className="material-symbols-outlined text-[60px] mb-sm">inventory_2</span>
-                <p className="font-body-lg text-on-surface-variant text-center mb-md">Henüz hiç ilan vermemişsiniz.</p>
-                <Link href="/ads/create" className="font-label-md bg-primary text-on-primary px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">
-                  İlk İlanını Ver
-                </Link>
-              </div>
-            )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>
