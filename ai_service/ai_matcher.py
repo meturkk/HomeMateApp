@@ -2,7 +2,11 @@ import joblib
 import numpy as np
 import math
 import os
+import warnings
 from models import User
+
+# scikit-learn feature names uyarısını bastır
+warnings.filterwarnings("ignore", message=".*X does not have valid feature names.*")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_MODEL_PATH = os.path.join(BASE_DIR, "ai_model.pkl")

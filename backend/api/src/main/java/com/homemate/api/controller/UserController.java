@@ -20,12 +20,22 @@ public class UserController {
     }
 
     @PostMapping("/submit-test")
-    public ResponseEntity<String> submitTest(@RequestBody Map<String, Integer> answers, Authentication authentication) {
+    public ResponseEntity<?> submitTest(@RequestBody Map<String, Integer> answers, Authentication authentication) {
         try {
-            Integer personaId = userService.submitTestAndAssignPersona(answers, authentication.getName());
-            return ResponseEntity.ok("Kişilik tipiniz başarıyla atandı: Persona " + personaId);
+            Map<String, Object> result = userService.submitTestAndGetAnalysis(answers, authentication.getName());
+            return ResponseEntity.ok(result);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/persona/{personaId}")
+    public ResponseEntity<?> getPersonaDetails(@PathVariable int personaId) {
+        try {
+            Map<String, Object> result = userService.getPersonaDetails(personaId);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 

@@ -27,20 +27,45 @@ public class UserService {
 
     // Testi çözen kullanıcının cevaplarını AI'a gönderir ve PersonaID'yi veritabanına kaydeder
     public Integer submitTestAndAssignPersona(Map<String, Integer> answers, String userEmail) {
-        // 1. Python'dan cluster ID'yi al
         Integer personaId = aiIntegrationService.getPersonaId(answers);
 
         if (personaId == null) {
             throw new RuntimeException("Yapay zeka testi sonuçlandırılamadı.");
         }
 
-        // 2. Kullanıcıyı bul ve veritabanını güncelle
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));
         user.setPersonaId(personaId);
         userRepository.save(user);
 
         return personaId;
+    }
+
+    // Test cevaplarını AI'a gönderir, PersonaID + Big Five skorlarını döndürür
+    public Map<String, Object> submitTestAndGetAnalysis(Map<String, Integer> answers, String userEmail) {
+        Map<String, Object> aiResult = aiIntegrationService.analyzePersonality(answers);
+
+        if (aiResult == null || !aiResult.containsKey("persona_id")) {
+            throw new RuntimeException("Yapay zeka testi sonuçlandırılamadı. AI servisi çalışıyor mu?");
+        }
+
+        Integer personaId = (Integer) aiResult.get("persona_id");
+
+        // Kullanıcının persona ID'sini veritabanına kaydet
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));
+        user.setPersonaId(personaId);
+        userRepository.save(user);
+
+        return aiResult;
+    }
+
+    public Map<String, Object> getPersonaDetails(int personaId) {
+        Map<String, Object> result = aiIntegrationService.getPersonaDetails(personaId);
+        if (result == null) {
+            throw new RuntimeException("Kişilik profili detayları çekilemedi. AI servisi çalışıyor mu?");
+        }
+        return result;
     }
 
     // --- ME METOTLARI ---

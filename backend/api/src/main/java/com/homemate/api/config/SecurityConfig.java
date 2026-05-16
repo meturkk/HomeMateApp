@@ -44,6 +44,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/**").permitAll() // Kayıt/Giriş uçları herkese açık
                 .requestMatchers("/uploads/**").permitAll() // Yüklenen fotoğraflar herkese açık
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/ads", "/api/ads/*").permitAll() // İlanları herkes görebilir
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/persona/**", "/api/users/me").authenticated() // Kullanıcı kendi bilgilerini ve persona detaylarını görebilir
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users").hasRole("ADMIN")
                 .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/users/*/deactivate").hasRole("ADMIN")
                 .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/ads/*/deactivate").hasRole("ADMIN")

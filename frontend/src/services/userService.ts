@@ -2,16 +2,23 @@ import { apiClient } from './apiClient';
 import { UserDto } from '../types';
 
 export const userService = {
-  submitPersonalityTest: async (answers: Record<string, number>): Promise<string> => {
-    return apiClient<string>('/users/submit-test', {
+  submitPersonalityTest: async (answers: Record<string, number>): Promise<any> => {
+    return apiClient<any>('/users/submit-test', {
       method: 'POST',
       body: JSON.stringify(answers),
-      requireAuth: true, // Requires JWT token
+      requireAuth: true,
     });
   },
 
   getMe: async (): Promise<UserDto> => {
     return apiClient<UserDto>('/users/me', {
+      method: 'GET',
+      requireAuth: true,
+    });
+  },
+
+  getPersonaDetails: async (personaId: number): Promise<any> => {
+    return apiClient<any>(`/users/persona/${personaId}`, {
       method: 'GET',
       requireAuth: true,
     });
