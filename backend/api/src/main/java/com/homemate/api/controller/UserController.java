@@ -29,6 +29,11 @@ public class UserController {
         }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<UserDto> getMe(Authentication authentication) {
+        return ResponseEntity.ok(userService.getMe(authentication.getName()));
+    }
+
     // --- ADMIN ENDPOINT'LERİ ---
     
     @GetMapping

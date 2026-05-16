@@ -1,5 +1,10 @@
 export interface AuthResponse {
   token: string;
+  userId?: number;
+  email?: string;
+  personaId?: number;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface UserDto {

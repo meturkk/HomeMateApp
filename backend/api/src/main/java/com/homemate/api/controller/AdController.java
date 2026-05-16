@@ -28,6 +28,11 @@ public class AdController {
         return ResponseEntity.ok(adService.getAdById(id));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<List<AdDto>> getMyAds(Authentication authentication) {
+        return ResponseEntity.ok(adService.getMyAds(authentication.getName()));
+    }
+
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<AdDto> createAd(
             @RequestPart("ad") String adJson,

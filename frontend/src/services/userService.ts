@@ -10,6 +10,13 @@ export const userService = {
     });
   },
 
+  getMe: async (): Promise<UserDto> => {
+    return apiClient<UserDto>('/users/me', {
+      method: 'GET',
+      requireAuth: true,
+    });
+  },
+
   getAllUsers: async (): Promise<UserDto[]> => {
     return apiClient<UserDto[]>('/users', {
       method: 'GET',

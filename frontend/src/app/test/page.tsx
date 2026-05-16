@@ -52,7 +52,7 @@ export default function TestPage() {
     return (
       <div className="flex-grow w-full max-w-container-max mx-auto px-gutter py-lg flex flex-col items-center justify-center min-h-[60vh]">
         <h1 className="font-headline-xl text-headline-xl text-on-surface mb-sm text-center">Harika, Tüm Soruları Yanıtladın!</h1>
-        <p className="font-body-lg text-body-lg text-on-surface-variant mb-lg text-center max-w-xl">
+        <p className="font-body-lg text-body-lg text-on-surface-variant mb-lg text-center w-full max-w-[600px]">
           Verdiğin cevaplara göre senin için en uyumlu ev arkadaşı profilini yapay zeka algoritmamız ile hesaplıyoruz.
         </p>
         <button 

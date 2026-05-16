@@ -41,7 +41,7 @@ public class AuthService {
         userRepository.save(user);
 
         String token = jwtUtils.generateToken(user.getEmail());
-        return new AuthResponse(token, user.getId(), user.getEmail(), user.getPersonaId());
+        return new AuthResponse(token, user.getId(), user.getEmail(), user.getPersonaId(), user.getFirstName(), user.getLastName());
     }
 
     public AuthResponse login(AuthRequest request) {
@@ -53,6 +53,6 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı."));
 
         String token = jwtUtils.generateToken(user.getEmail());
-        return new AuthResponse(token, user.getId(), user.getEmail(), user.getPersonaId());
+        return new AuthResponse(token, user.getId(), user.getEmail(), user.getPersonaId(), user.getFirstName(), user.getLastName());
     }
 }

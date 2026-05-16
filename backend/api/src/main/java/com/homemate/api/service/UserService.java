@@ -38,6 +38,12 @@ public class UserService {
         return personaId;
     }
 
+    // --- ME METOTLARI ---
+    public UserDto getMe(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        return mapUserToDto(user);
+    }
+
     // --- ADMIN METOTLARI ---
 
     public List<UserDto> getAllUsers() {

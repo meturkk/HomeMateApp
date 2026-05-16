@@ -9,10 +9,16 @@ export const adService = {
     });
   },
 
-  getAdById: async (id: number | string): Promise<AdDto> => {
+  getAdById: async (id: string): Promise<AdDto> => {
     return apiClient<AdDto>(`/ads/${id}`, {
       method: 'GET',
       requireAuth: false,
+    });
+  },
+
+  getMyAds: async (): Promise<AdDto[]> => {
+    return apiClient<AdDto[]>('/ads/me', {
+      method: 'GET',
     });
   },
 

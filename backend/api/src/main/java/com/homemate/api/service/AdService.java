@@ -45,6 +45,10 @@ public class AdService {
         return mapToDto(ad);
     }
 
+    public List<AdDto> getMyAds(String email) {
+        return adRepository.findByOwnerEmail(email).stream().map(this::mapToDto).collect(Collectors.toList());
+    }
+
     private final String UPLOAD_DIR = "uploads/";
 
     public AdDto createAd(AdDto adDto, List<MultipartFile> files, String ownerEmail) {

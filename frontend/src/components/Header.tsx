@@ -1,10 +1,33 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { authService } from '@/services/authService';
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    const currentUser = authService.getUser();
+    if (currentUser) {
+      setUser(currentUser);
+    } else if (authService.isAuthenticated()) {
+      setUser({ firstName: 'Kullanıcı', email: 'Kullanıcı' });
+    } else {
+      setUser(null);
+    }
+  }, [pathname]);
+
+  const handleLogout = () => {
+    authService.logout();
+    setUser(null);
+    router.push('/login');
+  };
 
   const isActive = (path: string) => {
     return pathname === path 
@@ -33,14 +56,38 @@ export default function Header() {
           </Link>
         </nav>
 
-        {/* Auth Links (Replaced trailing icons with auth buttons) */}
+        {/* Auth Links */}
         <div className="flex items-center gap-sm text-on-surface-variant">
-          <Link href="/login" className="font-label-md text-primary hover:underline px-4 py-2">
-            Giriş Yap
-          </Link>
-          <Link href="/register" className="bg-primary text-on-primary font-label-md px-4 py-2 rounded-lg hover:bg-primary-container transition-colors shadow-sm">
-            Kayıt Ol
-          </Link>
+          {!isMounted ? (
+            <div className="w-20 h-10 animate-pulse bg-surface-container rounded-lg"></div>
+          ) : user ? (
+            <div className="flex items-center gap-md">
+              <Link href="/profile" className="flex items-center gap-xs bg-surface-container rounded-full pl-1 pr-3 py-1 border border-outline-variant/30 hover:bg-surface-container-high transition-colors cursor-pointer">
+                <div className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md uppercase">
+                  {user.firstName ? user.firstName.charAt(0) : user.email.charAt(0)}
+                </div>
+                <span className="font-label-md text-on-surface hidden md:inline-block">
+                  {user.firstName || user.email.split('@')[0]}
+                </span>
+              </Link>
+              <button 
+                onClick={handleLogout}
+                className="font-label-md text-error hover:bg-error/10 px-3 py-2 rounded-lg transition-colors flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-[18px]">logout</span>
+                <span className="hidden md:inline">Çıkış</span>
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link href="/login" className="font-label-md text-primary hover:underline px-4 py-2">
+                Giriş Yap
+              </Link>
+              <Link href="/register" className="bg-primary text-on-primary font-label-md px-4 py-2 rounded-lg hover:bg-primary-container transition-colors shadow-sm">
+                Kayıt Ol
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </header>
