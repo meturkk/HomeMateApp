@@ -63,8 +63,12 @@ export default function Header() {
           ) : user ? (
             <div className="flex items-center gap-md">
               <Link href="/profile" className="flex items-center gap-xs bg-surface-container rounded-full pl-1 pr-3 py-1 border border-outline-variant/30 hover:bg-surface-container-high transition-colors cursor-pointer">
-                <div className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md uppercase">
-                  {user.firstName ? user.firstName.charAt(0) : user.email.charAt(0)}
+                <div className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center font-label-md uppercase overflow-hidden">
+                  {user.profilePictureUrl ? (
+                    <img src={user.profilePictureUrl} alt="Profil" className="w-full h-full object-cover" />
+                  ) : (
+                    user.firstName ? user.firstName.charAt(0) : user.email.charAt(0)
+                  )}
                 </div>
                 <span className="font-label-md text-on-surface hidden md:inline-block">
                   {user.firstName || user.email.split('@')[0]}

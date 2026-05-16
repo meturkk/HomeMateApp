@@ -17,6 +17,16 @@ export const userService = {
     });
   },
 
+  uploadProfilePicture: async (file: File): Promise<UserDto> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient<UserDto>('/users/profile-picture', {
+      method: 'POST',
+      body: formData,
+      requireAuth: true,
+    });
+  },
+
   getAllUsers: async (): Promise<UserDto[]> => {
     return apiClient<UserDto[]>('/users', {
       method: 'GET',

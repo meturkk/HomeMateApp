@@ -34,6 +34,13 @@ public class UserController {
         return ResponseEntity.ok(userService.getMe(authentication.getName()));
     }
 
+    @PostMapping(value = "/profile-picture", consumes = {"multipart/form-data"})
+    public ResponseEntity<UserDto> uploadProfilePicture(
+            @RequestPart("file") org.springframework.web.multipart.MultipartFile file,
+            Authentication authentication) {
+        return ResponseEntity.ok(userService.uploadProfilePicture(authentication.getName(), file));
+    }
+
     // --- ADMIN ENDPOINT'LERİ ---
     
     @GetMapping

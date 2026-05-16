@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.web.multipart.MultipartFile;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -42,6 +47,35 @@ public class UserService {
     public UserDto getMe(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
         return mapUserToDto(user);
+    }
+
+    private final String UPLOAD_DIR = "uploads/";
+
+    public UserDto uploadProfilePicture(String email, MultipartFile file) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        
+        if (file == null || file.isEmpty()) {
+            throw new RuntimeException("Lütfen geçerli bir dosya seçin.");
+        }
+        
+        try {
+            Path uploadPath = Paths.get(UPLOAD_DIR);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+            
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename().replaceAll("[^a-zA-Z0-9.-]", "_");
+            Path filePath = uploadPath.resolve(fileName);
+            Files.copy(file.getInputStream(), filePath);
+            
+            String fileUrl = "http://localhost:8080/uploads/" + fileName;
+            user.setProfilePictureUrl(fileUrl);
+            userRepository.save(user);
+            
+            return mapUserToDto(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Profil fotoğrafı yüklenirken hata oluştu: " + e.getMessage());
+        }
     }
 
     // --- ADMIN METOTLARI ---
