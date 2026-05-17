@@ -41,6 +41,43 @@ public class Ad {
     @Column
     private String neighborhood;
 
+    // --- Yeni ilan bilgileri ---
+
+    @Column
+    private Integer squareMeters; // Metrekare
+
+    @Column
+    private String roomCount; // Oda sayısı (1+1, 2+1, 3+1 vb.)
+
+    @Column
+    private String heatingType; // Isıtma bilgisi (Doğalgaz, Kombi, Merkezi vb.)
+
+    @Column
+    private Integer bathroomCount; // Banyo sayısı
+
+    @Column
+    private Integer currentResidents; // Evde yaşayan kişi sayısı
+
+    @Column
+    private Integer totalCapacity; // Evin kişi kapasitesi
+
+    @Column
+    private Boolean hasBalcony; // Balkon var mı?
+
+    @Column
+    private Integer floorNumber; // Kat
+
+    @Column
+    private Boolean hasElevator; // Asansör var mı?
+
+    @Column
+    private Boolean hasParking; // Otopark var mı?
+
+    @Column
+    private Boolean inComplex; // Site içerisinde mi?
+
+    // --- Mevcut alanlar ---
+
     @ElementCollection
     @CollectionTable(name = "ad_photos", joinColumns = @JoinColumn(name = "ad_id"))
     @Column(name = "photo_url")

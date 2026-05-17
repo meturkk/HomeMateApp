@@ -29,6 +29,17 @@ export interface AdDto {
   districtId: number;
   districtName: string;
   neighborhood?: string;
+  squareMeters?: number;
+  roomCount?: string;
+  heatingType?: string;
+  bathroomCount?: number;
+  currentResidents?: number;
+  totalCapacity?: number;
+  hasBalcony?: boolean;
+  floorNumber?: number;
+  hasElevator?: boolean;
+  hasParking?: boolean;
+  inComplex?: boolean;
   photoUrls: string[];
   isActive: boolean;
   createdAt: string;

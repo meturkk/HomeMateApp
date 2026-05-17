@@ -68,6 +68,19 @@ public class AdService {
         ad.setDistrict(district);
         ad.setNeighborhood(adDto.getNeighborhood());
 
+        // Yeni ilan bilgileri
+        ad.setSquareMeters(adDto.getSquareMeters());
+        ad.setRoomCount(adDto.getRoomCount());
+        ad.setHeatingType(adDto.getHeatingType());
+        ad.setBathroomCount(adDto.getBathroomCount());
+        ad.setCurrentResidents(adDto.getCurrentResidents());
+        ad.setTotalCapacity(adDto.getTotalCapacity());
+        ad.setHasBalcony(adDto.getHasBalcony());
+        ad.setFloorNumber(adDto.getFloorNumber());
+        ad.setHasElevator(adDto.getHasElevator());
+        ad.setHasParking(adDto.getHasParking());
+        ad.setInComplex(adDto.getInComplex());
+
         // Handle File Uploads
         List<String> photoUrls = new java.util.ArrayList<>();
         if (files != null && !files.isEmpty()) {
@@ -107,6 +120,20 @@ public class AdService {
         dto.setDistrictId(ad.getDistrict().getId());
         dto.setDistrictName(ad.getDistrict().getName());
         dto.setNeighborhood(ad.getNeighborhood());
+
+        // Yeni ilan bilgileri
+        dto.setSquareMeters(ad.getSquareMeters());
+        dto.setRoomCount(ad.getRoomCount());
+        dto.setHeatingType(ad.getHeatingType());
+        dto.setBathroomCount(ad.getBathroomCount());
+        dto.setCurrentResidents(ad.getCurrentResidents());
+        dto.setTotalCapacity(ad.getTotalCapacity());
+        dto.setHasBalcony(ad.getHasBalcony());
+        dto.setFloorNumber(ad.getFloorNumber());
+        dto.setHasElevator(ad.getHasElevator());
+        dto.setHasParking(ad.getHasParking());
+        dto.setInComplex(ad.getInComplex());
+
         dto.setPhotoUrls(ad.getPhotoUrls());
         dto.setCreatedAt(ad.getCreatedAt());
         return dto;
