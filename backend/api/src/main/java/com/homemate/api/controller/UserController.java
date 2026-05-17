@@ -51,6 +51,11 @@ public class UserController {
         return ResponseEntity.ok(userService.uploadProfilePicture(authentication.getName(), file));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
     // --- ADMIN ENDPOINT'LERİ ---
     
     @GetMapping

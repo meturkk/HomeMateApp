@@ -6,13 +6,15 @@ import { useParams, useRouter } from 'next/navigation';
 import { adService } from '@/services/adService';
 import { favoriteService } from '@/services/favoriteService';
 import { authService } from '@/services/authService';
-import { AdDto } from '@/types';
+import { userService } from '@/services/userService';
+import { AdDto, UserDto } from '@/types';
 import Link from 'next/link';
 
 export default function AdDetailPage() {
   const params = useParams();
   const router = useRouter();
   const [ad, setAd] = useState<AdDto | null>(null);
+  const [owner, setOwner] = useState<UserDto | null>(null);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -24,6 +26,16 @@ export default function AdDetailPage() {
         if (params.id) {
           const data = await adService.getAdById(params.id as string);
           setAd(data);
+
+          // İlanı veren kullanıcının profil bilgilerini dinamik olarak çek
+          if (data.ownerId) {
+            try {
+              const ownerData = await userService.getUserById(data.ownerId);
+              setOwner(ownerData);
+            } catch (err) {
+              console.error('İlan sahibi bilgileri çekilemedi:', err);
+            }
+          }
         }
       } catch (err) {
         console.error(err);
@@ -91,7 +103,7 @@ export default function AdDetailPage() {
         <div className="lg:col-span-2 flex flex-col gap-lg">
           {/* Fotoğraf Alanı */}
           <div className="flex flex-col gap-sm">
-            <div className="w-full h-[400px] md:h-[500px] bg-surface-container rounded-2xl overflow-hidden relative border border-outline-variant/30 flex items-center justify-center">
+            <div className="w-full aspect-[16/9] bg-surface-container rounded-2xl overflow-hidden relative border border-outline-variant/30 flex items-center justify-center">
               {ad.photoUrls && ad.photoUrls.length > 0 ? (
                 <img src={ad.photoUrls[selectedPhotoIndex]} alt={ad.title} className="w-full h-full object-cover transition-opacity duration-300" />
               ) : (
@@ -113,7 +125,7 @@ export default function AdDetailPage() {
                   <button 
                     key={index} 
                     onClick={() => setSelectedPhotoIndex(index)}
-                    className={`w-24 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${selectedPhotoIndex === index ? 'border-primary opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                    className={`w-28 aspect-[16/9] flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all ${selectedPhotoIndex === index ? 'border-primary opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
                   >
                     <img src={url} alt={`${ad.title} - Fotoğraf ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -139,7 +151,7 @@ export default function AdDetailPage() {
               <h1 className="font-headline-lg text-headline-lg text-on-surface mb-xs">{ad.title}</h1>
               <p className="font-body-md text-body-md text-on-surface-variant flex items-center gap-1">
                 <span className="material-symbols-outlined text-[18px]">location_on</span>
-                {ad.cityName || 'Şehir Yok'}, {ad.districtName || 'İlçe Yok'}
+                {ad.cityName || 'Şehir Yok'}, {ad.districtName || 'İlçe Yok'}{ad.neighborhood ? `, ${ad.neighborhood} Mah.` : ''}
               </p>
             </div>
 
@@ -158,13 +170,23 @@ export default function AdDetailPage() {
               </div>
             </div>
 
-            {/* Ev Arkadaşı Profili */}
+            {/* Ev Arkadaşı Profili (Dinamik Bilgiler) */}
             <div className="flex items-center gap-md">
-              <div className="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-headline-md uppercase shadow-sm">
-                K
-              </div>
+              {owner?.profilePictureUrl ? (
+                <img 
+                  src={owner.profilePictureUrl} 
+                  alt={`${owner.firstName} ${owner.lastName}`} 
+                  className="w-14 h-14 rounded-full object-cover border border-outline-variant/30 shadow-sm"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-headline-md uppercase shadow-sm">
+                  {owner ? `${owner.firstName[0]}${owner.lastName[0]}` : 'K'}
+                </div>
+              )}
               <div>
-                <p className="font-label-md text-label-md text-on-surface">Kullanıcı {ad.ownerId}</p>
+                <p className="font-label-md text-label-md text-on-surface">
+                  {owner ? `${owner.firstName} ${owner.lastName}` : `Kullanıcı ${ad.ownerId}`}
+                </p>
                 <p className="font-body-sm text-body-sm text-on-surface-variant">Ev Sahibi</p>
               </div>
             </div>

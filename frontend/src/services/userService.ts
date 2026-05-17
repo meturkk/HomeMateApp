@@ -41,6 +41,13 @@ export const userService = {
     });
   },
 
+  getUserById: async (id: number): Promise<UserDto> => {
+    return apiClient<UserDto>(`/users/${id}`, {
+      method: 'GET',
+      requireAuth: false,
+    });
+  },
+
   deactivateUser: async (id: number): Promise<string> => {
     return apiClient<string>(`/users/${id}/deactivate`, {
       method: 'PATCH',

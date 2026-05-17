@@ -28,6 +28,7 @@ export interface AdDto {
   cityName: string;
   districtId: number;
   districtName: string;
+  neighborhood?: string;
   photoUrls: string[];
   isActive: boolean;
   createdAt: string;

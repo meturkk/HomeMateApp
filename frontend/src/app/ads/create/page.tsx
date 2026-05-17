@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { adService } from '@/services/adService';
 import { locationService, LocationItem } from '@/services/locationService';
 import Dropdown from '@/components/ui/Dropdown';
+import ImageCropperModal from '@/components/ui/ImageCropperModal';
 
 export default function CreateAdPage() {
   const router = useRouter();
@@ -12,7 +13,15 @@ export default function CreateAdPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
-  const [files, setFiles] = useState<File[]>([]);
+  
+  // Fotoğraf önizleme state'leri
+  const [previews, setPreviews] = useState<{ id: string; url: string; file: File }[]>([]);
+
+  // Kırpma modali state'leri
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropImageUrl, setCropImageUrl] = useState('');
+  const [cropFileName, setCropFileName] = useState('');
+  const [activePreviewId, setActivePreviewId] = useState<string>('');
 
   // Konum state'leri
   const [cities, setCities] = useState<LocationItem[]>([]);
@@ -30,6 +39,67 @@ export default function CreateAdPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [locationsLoading, setLocationsLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // Unmount olduğunda tüm object URL'leri temizle (bellek sızıntısını önler)
+  useEffect(() => {
+    return () => {
+      previews.forEach(p => URL.revokeObjectURL(p.url));
+    };
+  }, []);
+
+  // Fotoğraf yükleme değişim işleyicisi (Önizleme oluşturma ve 10MB boyutu kontrolü)
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const selectedFiles = Array.from(e.target.files);
+      const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+      const tooLargeFiles = selectedFiles.filter(file => file.size > MAX_FILE_SIZE);
+      
+      if (tooLargeFiles.length > 0) {
+        setError(`Bazı fotoğraflar 10MB limitini aşıyor: ${tooLargeFiles.map(f => f.name).join(', ')}. Lütfen daha küçük fotoğraflar seçin.`);
+        e.target.value = '';
+        return;
+      }
+      
+      setError('');
+      
+      // Yeni önizleme öğelerini listeye ekle
+      const newPreviews = selectedFiles.map(file => ({
+        id: Math.random().toString(36).substring(2, 9),
+        url: URL.createObjectURL(file),
+        file
+      }));
+      
+      setPreviews(prev => [...prev, ...newPreviews]);
+      e.target.value = ''; // Aynı dosyayı tekrar yükleyebilmek için input'u sıfırla
+    }
+  };
+
+  // Fotoğraf silme işleyicisi
+  const handleDeletePreview = (id: string, url: string) => {
+    URL.revokeObjectURL(url);
+    setPreviews(prev => prev.filter(p => p.id !== id));
+  };
+
+  // Kırpma modali açıcı
+  const handleOpenCropper = (id: string, url: string, name: string) => {
+    setActivePreviewId(id);
+    setCropImageUrl(url);
+    setCropFileName(name);
+    setCropperOpen(true);
+  };
+
+  // Kırpılan görseli kaydetme
+  const handleCropSave = (croppedFile: File, newUrl: string) => {
+    setPreviews(prev => 
+      prev.map(p => {
+        if (p.id === activePreviewId) {
+          URL.revokeObjectURL(p.url); // Eski URL'i bellekten sil
+          return { ...p, url: newUrl, file: croppedFile };
+        }
+        return p;
+      })
+    );
+  };
 
   // Sayfa yüklendiğinde şehirleri getir
   useEffect(() => {
@@ -123,8 +193,8 @@ export default function CreateAdPage() {
       };
 
       formData.append("ad", JSON.stringify(adData));
-      files.forEach(f => {
-        formData.append("files", f);
+      previews.forEach(p => {
+        formData.append("files", p.file);
       });
 
       const newAd = await adService.createAd(formData);
@@ -229,33 +299,58 @@ export default function CreateAdPage() {
 
           {/* Fotoğraf Linki (File Upload) */}
           <div className="flex flex-col gap-xs">
-            <label className="font-label-md text-on-surface" htmlFor="file">Evinizin Fotoğraflarını Yükleyin </label>
+            <label className="font-label-md text-on-surface" htmlFor="file">Evinizin Fotoğraflarını Yükleyin</label>
             <input
               id="file"
               type="file"
               accept="image/*"
               multiple
-              onChange={(e) => {
-                if (e.target.files) {
-                  const selectedFiles = Array.from(e.target.files);
-                  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
-                  const tooLargeFiles = selectedFiles.filter(file => file.size > MAX_FILE_SIZE);
-                  
-                  if (tooLargeFiles.length > 0) {
-                    setError(`Bazı fotoğraflar 10MB limitini aşıyor: ${tooLargeFiles.map(f => f.name).join(', ')}. Lütfen daha küçük fotoğraflar seçin.`);
-                    e.target.value = '';
-                    setFiles([]);
-                    return;
-                  }
-                  
-                  setError('');
-                  setFiles(selectedFiles);
-                }
-              }}
+              onChange={handleFileChange}
               className="w-full bg-surface-container px-md py-sm rounded-xl font-body-md text-on-surface file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-on-primary hover:file:bg-primary-container hover:file:text-on-primary-container cursor-pointer"
             />
-            {files.length > 0 && (
-              <p className="font-body-sm text-primary mt-1">{files.length} adet fotoğraf seçildi.</p>
+            
+            {/* Fotoğraf Önizleme Galerisi */}
+            {previews.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-md mt-sm">
+                {previews.map((p) => (
+                  <div key={p.id} className="relative group aspect-square rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container-low shadow-sm">
+                    {/* Görsel Önizleme */}
+                    <img 
+                      src={p.url} 
+                      alt={p.file.name} 
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+
+                    {/* Hover İşlem Paneli (Cam Efekti) */}
+                    <div className="absolute inset-0 bg-neutral-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-sm backdrop-blur-[2px]">
+                      {/* Kırp Butonu */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenCropper(p.id, p.url, p.file.name)}
+                        className="w-10 h-10 rounded-full bg-surface-container-lowest/90 text-on-surface hover:bg-primary hover:text-on-primary transition-colors flex items-center justify-center shadow-lg cursor-pointer"
+                        title="Kırp"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">crop</span>
+                      </button>
+
+                      {/* Sil Butonu */}
+                      <button
+                        type="button"
+                        onClick={() => handleDeletePreview(p.id, p.url)}
+                        className="w-10 h-10 rounded-full bg-surface-container-lowest/90 text-error hover:bg-error hover:text-on-error transition-colors flex items-center justify-center shadow-lg cursor-pointer"
+                        title="Sil"
+                      >
+                        <span className="material-symbols-outlined text-[20px]">delete</span>
+                      </button>
+                    </div>
+
+                    {/* Dosya Adı Altlığı */}
+                    <div className="absolute bottom-0 inset-x-0 bg-neutral-950/60 py-1 px-2 text-[10px] text-white truncate text-center">
+                      {p.file.name}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
@@ -287,6 +382,14 @@ export default function CreateAdPage() {
           </button>
         </form>
       </div>
+
+      <ImageCropperModal
+        isOpen={cropperOpen}
+        imageUrl={cropImageUrl}
+        originalFileName={cropFileName}
+        onClose={() => setCropperOpen(false)}
+        onCropSave={handleCropSave}
+      />
     </div>
   );
 }

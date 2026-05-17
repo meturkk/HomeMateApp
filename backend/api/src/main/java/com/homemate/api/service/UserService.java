@@ -116,6 +116,11 @@ public class UserService {
         return "Kullanıcı başarıyla askıya alındı (Soft Delete).";
     }
 
+    public UserDto getUserById(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
+        return mapUserToDto(user);
+    }
+
     private UserDto mapUserToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
