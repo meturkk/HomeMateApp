@@ -134,6 +134,122 @@ export default function AdDetailPage() {
             )}
           </div>
 
+          {/* Evin Özellikleri Grid */}
+          <div className="bg-surface-container-lowest p-lg rounded-2xl ambient-shadow border border-outline-variant/30 flex flex-col gap-lg">
+            <h2 className="font-headline-md text-headline-md text-on-surface flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary">home_work</span>
+              Ev Özellikleri ve Detayları
+            </h2>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-md">
+              {/* Metrekare */}
+              <div className="flex items-center gap-sm bg-surface-container-low p-md rounded-xl border border-outline-variant/10">
+                <span className="material-symbols-outlined text-primary text-[28px]">square_foot</span>
+                <div>
+                  <p className="text-body-xs font-body-sm text-on-surface-variant">Metrekare</p>
+                  <p className="text-label-md font-label-md text-on-surface">{ad.squareMeters ? `${ad.squareMeters} m²` : 'Belirtilmedi'}</p>
+                </div>
+              </div>
+
+              {/* Oda Sayısı */}
+              <div className="flex items-center gap-sm bg-surface-container-low p-md rounded-xl border border-outline-variant/10">
+                <span className="material-symbols-outlined text-primary text-[28px]">bed</span>
+                <div>
+                  <p className="text-body-xs font-body-sm text-on-surface-variant">Oda Sayısı</p>
+                  <p className="text-label-md font-label-md text-on-surface">{ad.roomCount || 'Belirtilmedi'}</p>
+                </div>
+              </div>
+
+              {/* Bulunduğu Kat */}
+              <div className="flex items-center gap-sm bg-surface-container-low p-md rounded-xl border border-outline-variant/10">
+                <span className="material-symbols-outlined text-primary text-[28px]">layers</span>
+                <div>
+                  <p className="text-body-xs font-body-sm text-on-surface-variant">Bulunduğu Kat</p>
+                  <p className="text-label-md font-label-md text-on-surface">{ad.floorNumber !== undefined && ad.floorNumber !== null ? `${ad.floorNumber}. Kat` : 'Belirtilmedi'}</p>
+                </div>
+              </div>
+
+              {/* Banyo Sayısı */}
+              <div className="flex items-center gap-sm bg-surface-container-low p-md rounded-xl border border-outline-variant/10">
+                <span className="material-symbols-outlined text-primary text-[28px]">bathtub</span>
+                <div>
+                  <p className="text-body-xs font-body-sm text-on-surface-variant">Banyo Sayısı</p>
+                  <p className="text-label-md font-label-md text-on-surface">{ad.bathroomCount !== undefined && ad.bathroomCount !== null ? `${ad.bathroomCount} Banyo` : 'Belirtilmedi'}</p>
+                </div>
+              </div>
+
+              {/* Isıtma Tipi */}
+              <div className="flex items-center gap-sm bg-surface-container-low p-md rounded-xl border border-outline-variant/10">
+                <span className="material-symbols-outlined text-primary text-[28px]">thermostat</span>
+                <div>
+                  <p className="text-body-xs font-body-sm text-on-surface-variant">Isıtma Tipi</p>
+                  <p className="text-label-md font-label-md text-on-surface">{ad.heatingType || 'Belirtilmedi'}</p>
+                </div>
+              </div>
+
+              {/* Kişi Kapasitesi */}
+              <div className="flex items-center gap-sm bg-surface-container-low p-md rounded-xl border border-outline-variant/10">
+                <span className="material-symbols-outlined text-primary text-[28px]">group</span>
+                <div>
+                  <p className="text-body-xs font-body-sm text-on-surface-variant">Yaşayan / Kapasite</p>
+                  <p className="text-label-md font-label-md text-on-surface">
+                    {ad.currentResidents !== undefined && ad.currentResidents !== null ? ad.currentResidents : '?'} Kişi / {ad.totalCapacity !== undefined && ad.totalCapacity !== null ? `${ad.totalCapacity} Kişi` : '?'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Donanım ve Çevre Özellikleri (Pills) */}
+            <div className="flex flex-col gap-sm pt-sm border-t border-outline-variant/30">
+              <p className="font-label-md text-on-surface-variant">Konut Donanım ve Özellikleri</p>
+              <div className="flex flex-wrap gap-sm">
+                <span className={`px-md py-sm rounded-xl text-label-md font-label-md flex items-center gap-xs border transition-all ${
+                  ad.hasBalcony 
+                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+                    : 'bg-surface-container-low text-on-surface-variant border-outline-variant/20 opacity-60'
+                }`}>
+                  <span className="material-symbols-outlined text-[18px]">
+                    {ad.hasBalcony ? 'check_circle' : 'cancel'}
+                  </span>
+                  Balkon
+                </span>
+
+                <span className={`px-md py-sm rounded-xl text-label-md font-label-md flex items-center gap-xs border transition-all ${
+                  ad.hasElevator 
+                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+                    : 'bg-surface-container-low text-on-surface-variant border-outline-variant/20 opacity-60'
+                }`}>
+                  <span className="material-symbols-outlined text-[18px]">
+                    {ad.hasElevator ? 'check_circle' : 'cancel'}
+                  </span>
+                  Asansör
+                </span>
+
+                <span className={`px-md py-sm rounded-xl text-label-md font-label-md flex items-center gap-xs border transition-all ${
+                  ad.hasParking 
+                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+                    : 'bg-surface-container-low text-on-surface-variant border-outline-variant/20 opacity-60'
+                }`}>
+                  <span className="material-symbols-outlined text-[18px]">
+                    {ad.hasParking ? 'check_circle' : 'cancel'}
+                  </span>
+                  Otopark
+                </span>
+
+                <span className={`px-md py-sm rounded-xl text-label-md font-label-md flex items-center gap-xs border transition-all ${
+                  ad.inComplex 
+                    ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' 
+                    : 'bg-surface-container-low text-on-surface-variant border-outline-variant/20 opacity-60'
+                }`}>
+                  <span className="material-symbols-outlined text-[18px]">
+                    {ad.inComplex ? 'check_circle' : 'cancel'}
+                  </span>
+                  Site İçerisinde
+                </span>
+              </div>
+            </div>
+          </div>
+
           {/* Açıklama */}
           <div className="bg-surface-container-lowest p-lg rounded-2xl ambient-shadow border border-outline-variant/30">
             <h2 className="font-headline-md text-headline-md text-on-surface mb-md">İlan Açıklaması</h2>
@@ -166,7 +282,9 @@ export default function AdDetailPage() {
               </div>
               <div className="flex justify-between items-center">
                 <span className="font-body-md text-on-surface-variant">Oda Sayısı</span>
-                <span className="font-label-md text-on-surface bg-surface-container px-3 py-1 rounded-lg">3+1</span>
+                <span className="font-label-md text-on-surface bg-surface-container px-3 py-1 rounded-lg">
+                  {ad.roomCount || 'Belirtilmedi'}
+                </span>
               </div>
             </div>
 

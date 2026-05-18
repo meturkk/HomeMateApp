@@ -13,6 +13,19 @@ export default function CreateAdPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
+
+  // Yeni İlan Özellikleri State'leri
+  const [squareMeters, setSquareMeters] = useState<string>('');
+  const [roomCount, setRoomCount] = useState<string>('');
+  const [heatingType, setHeatingType] = useState<string>('');
+  const [bathroomCount, setBathroomCount] = useState<string>('');
+  const [currentResidents, setCurrentResidents] = useState<string>('');
+  const [totalCapacity, setTotalCapacity] = useState<string>('');
+  const [hasBalcony, setHasBalcony] = useState<boolean>(false);
+  const [floorNumber, setFloorNumber] = useState<string>('');
+  const [hasElevator, setHasElevator] = useState<boolean>(false);
+  const [hasParking, setHasParking] = useState<boolean>(false);
+  const [inComplex, setInComplex] = useState<boolean>(false);
   
   // Fotoğraf önizleme state'leri
   const [previews, setPreviews] = useState<{ id: string; url: string; file: File }[]>([]);
@@ -189,7 +202,20 @@ export default function CreateAdPage() {
         price: parseFloat(price.replace(/\./g, '')),
         cityId: Number(cityId),
         districtId: Number(districtId),
-        neighborhood
+        neighborhood,
+
+        // Yeni ilan bilgileri
+        squareMeters: squareMeters ? Number(squareMeters) : null,
+        roomCount: roomCount || null,
+        heatingType: heatingType || null,
+        bathroomCount: bathroomCount ? Number(bathroomCount) : null,
+        currentResidents: currentResidents ? Number(currentResidents) : null,
+        totalCapacity: totalCapacity ? Number(totalCapacity) : null,
+        hasBalcony,
+        floorNumber: floorNumber ? Number(floorNumber) : null,
+        hasElevator,
+        hasParking,
+        inComplex
       };
 
       formData.append("ad", JSON.stringify(adData));
@@ -294,6 +320,177 @@ export default function CreateAdPage() {
                 isLast={true}
                 disabled={!districtId}
               />
+            </div>
+          </div>
+
+          {/* Evin Detaylı Özellikleri Section */}
+          <div className="bg-surface-container-low/40 p-lg rounded-2xl border border-outline-variant/20 flex flex-col gap-lg">
+            <div className="flex items-center gap-xs border-b border-outline-variant/30 pb-sm">
+              <span className="material-symbols-outlined text-primary">info</span>
+              <h3 className="font-title-md text-on-surface">Evin Detaylı Özellikleri</h3>
+            </div>
+
+            {/* Grid 1: Temel Metrikler */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-md">
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-on-surface" htmlFor="squareMeters">Metrekare (m²)</label>
+                <input
+                  id="squareMeters"
+                  type="number"
+                  value={squareMeters}
+                  onChange={(e) => setSquareMeters(e.target.value)}
+                  placeholder="120"
+                  className="w-full bg-surface-container px-md py-sm rounded-xl font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary border-none"
+                  min="0"
+                />
+              </div>
+
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-on-surface" htmlFor="floorNumber">Bulunduğu Kat</label>
+                <input
+                  id="floorNumber"
+                  type="number"
+                  value={floorNumber}
+                  onChange={(e) => setFloorNumber(e.target.value)}
+                  placeholder="2"
+                  className="w-full bg-surface-container px-md py-sm rounded-xl font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary border-none"
+                />
+              </div>
+
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-on-surface" htmlFor="bathroomCount">Banyo Sayısı</label>
+                <input
+                  id="bathroomCount"
+                  type="number"
+                  value={bathroomCount}
+                  onChange={(e) => setBathroomCount(e.target.value)}
+                  placeholder="1"
+                  className="w-full bg-surface-container px-md py-sm rounded-xl font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary border-none"
+                  min="0"
+                />
+              </div>
+            </div>
+
+            {/* Grid 2: Yaşam & Düzen */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-on-surface" htmlFor="roomCount">Oda Sayısı</label>
+                <input
+                  id="roomCount"
+                  type="text"
+                  value={roomCount}
+                  onChange={(e) => setRoomCount(e.target.value)}
+                  placeholder="3+1"
+                  className="w-full bg-surface-container px-md py-sm rounded-xl font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary border-none"
+                />
+              </div>
+
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-on-surface" htmlFor="heatingType">Isıtma Tipi</label>
+                <input
+                  id="heatingType"
+                  type="text"
+                  value={heatingType}
+                  onChange={(e) => setHeatingType(e.target.value)}
+                  placeholder="Kombi (Doğalgaz)"
+                  className="w-full bg-surface-container px-md py-sm rounded-xl font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary border-none"
+                />
+              </div>
+            </div>
+
+            {/* Grid 3: Ev Arkadaşı Kapasite & Nüfus */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-on-surface" htmlFor="currentResidents">Evde Yaşayan Kişi Sayısı</label>
+                <input
+                  id="currentResidents"
+                  type="number"
+                  value={currentResidents}
+                  onChange={(e) => setCurrentResidents(e.target.value)}
+                  placeholder="2"
+                  className="w-full bg-surface-container px-md py-sm rounded-xl font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary border-none"
+                  min="0"
+                />
+              </div>
+
+              <div className="flex flex-col gap-xs">
+                <label className="font-label-md text-on-surface" htmlFor="totalCapacity">Evin Toplam Kişi Kapasitesi</label>
+                <input
+                  id="totalCapacity"
+                  type="number"
+                  value={totalCapacity}
+                  onChange={(e) => setTotalCapacity(e.target.value)}
+                  placeholder="3"
+                  className="w-full bg-surface-container px-md py-sm rounded-xl font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary border-none"
+                  min="0"
+                />
+              </div>
+            </div>
+
+            {/* Grid 4: Bina & Donanım Özellikleri (Interactive Toggle Chips) */}
+            <div className="flex flex-col gap-xs">
+              <span className="font-label-md text-on-surface">Bina ve Ev Özellikleri</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-sm">
+                <button
+                  type="button"
+                  onClick={() => setHasBalcony(!hasBalcony)}
+                  className={`py-sm px-md rounded-xl font-label-md border transition-all flex items-center justify-center gap-xs cursor-pointer ${
+                    hasBalcony 
+                      ? 'bg-primary/10 border-primary text-primary shadow-sm' 
+                      : 'bg-surface-container border-outline-variant/30 text-on-surface-variant hover:border-outline-variant'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {hasBalcony ? 'check_circle' : 'cancel'}
+                  </span>
+                  Balkon
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setHasElevator(!hasElevator)}
+                  className={`py-sm px-md rounded-xl font-label-md border transition-all flex items-center justify-center gap-xs cursor-pointer ${
+                    hasElevator 
+                      ? 'bg-primary/10 border-primary text-primary shadow-sm' 
+                      : 'bg-surface-container border-outline-variant/30 text-on-surface-variant hover:border-outline-variant'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {hasElevator ? 'check_circle' : 'cancel'}
+                  </span>
+                  Asansör
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setHasParking(!hasParking)}
+                  className={`py-sm px-md rounded-xl font-label-md border transition-all flex items-center justify-center gap-xs cursor-pointer ${
+                    hasParking 
+                      ? 'bg-primary/10 border-primary text-primary shadow-sm' 
+                      : 'bg-surface-container border-outline-variant/30 text-on-surface-variant hover:border-outline-variant'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {hasParking ? 'check_circle' : 'cancel'}
+                  </span>
+                  Otopark
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setInComplex(!inComplex)}
+                  className={`py-sm px-md rounded-xl font-label-md border transition-all flex items-center justify-center gap-xs cursor-pointer ${
+                    inComplex 
+                      ? 'bg-primary/10 border-primary text-primary shadow-sm' 
+                      : 'bg-surface-container border-outline-variant/30 text-on-surface-variant hover:border-outline-variant'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    {inComplex ? 'check_circle' : 'cancel'}
+                  </span>
+                  Site İçi
+                </button>
+              </div>
             </div>
           </div>
 
